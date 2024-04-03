@@ -1,23 +1,25 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import SignIn from './sign-in/signin'; // Adjust path as necessary
-import SignUp from './sign-up/signup'; // Adjust path as necessary
+import Landing from './landing/landing'; // Ensure this is the correct path to your Landing component
+import SignIn from './sign-in/signin'; 
+import SignUp from './sign-up/signup'; 
 
 function App() {
   return (
     <Router>
       <div>
-        {/* Links for navigation */}
+        {/* Navigation links */}
         <nav>
-          <Link to="/signin">Sign In</Link> | <Link to="/signup">Sign Up</Link>
+          <Link to="/">Home</Link> | 
+          <Link to="/signin">Sign In</Link> | 
+          <Link to="/signup">Sign Up</Link>
         </nav>
 
         {/* Route configuration */}
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          {/* Redirect to /signin by default */}
-          <Route path="/" element={<SignIn />} />
         </Routes>
       </div>
     </Router>
@@ -25,5 +27,6 @@ function App() {
 }
 
 export default App;
+
 
 
