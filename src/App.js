@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Landing from './landing/landing'; // Ensure this is the correct path to your Landing component
+import Landing from './landing/landing'; 
 import SignIn from './sign-in/signin'; 
 import SignUp from './sign-up/signup'; 
+import Chat from './chat/chat';
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
         <nav>
           <Link to="/">Home</Link> | 
           <Link to="/signin">Sign In</Link> | 
-          <Link to="/signup">Sign Up</Link>
+          <Link to="/signup">Sign Up</Link> | 
+          <Link to="/chat">Chat</Link>
         </nav>
 
         {/* Route configuration */}
@@ -20,6 +22,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </div>
     </Router>
