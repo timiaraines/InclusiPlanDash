@@ -1,43 +1,59 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { Avatar, Button, CssBaseline, TextField, FormControl, InputLabel, Select, MenuItem, Grid, Box, Typography, Container } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Correct import for navigation
+import db from '../firebase/firebase';  // Ensure this path is correctly pointing to your Firebase config
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="inclusiplan.com">
-        InclusiPlan
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-const defaultTheme = createTheme();
+const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: ''
+  });
+  const navigate = useNavigate();
+  const auth = getAuth();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const { email, password, firstName, lastName, role } = formData;
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Store additional user information in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        firstName,
+        lastName,
+        role
+      });
+
+      console.log('User created and data saved:', user.uid);
+      navigate('/dashboard');  
+    } catch (error) {
+      console.error('Error signing up:', error);
+      alert('Error signing up: ' + error.message);
+    }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -56,7 +72,8 @@ export default function SignUp() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              {/* Form Fields */}
+              <Grid item xs={12}>
                 <TextField
                   autoComplete="given-name"
                   name="firstName"
@@ -65,9 +82,11 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  value={formData.firstName}
+                  onChange={handleChange}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
@@ -75,6 +94,8 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  value={formData.lastName}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -85,6 +106,8 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -95,49 +118,58 @@ export default function SignUp() {
                   label="Password"
                   type="password"
                   id="password"
-                  autoComplete="new-password"
+                  value={formData.password}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
-              <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Re-Enter Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
+                <FormControl fullWidth>
+                  <InputLabel id="role-select-label">Role</InputLabel>
+                  <Select
+                    labelId="role-select-label"
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    label="Role"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="teacher">Teacher</MenuItem>
+                    <MenuItem value="parent">Parent</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
-              <Grid item xs={12}>
-              <TextField
-                  optional
-                  fullWidth
-                  name="teacher-id"
-                  label="School Code"
-                  type="number"
-                  id="id-num"
-                  autoComplete="new-password"
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="center">
-              <Grid item>
-              Already have an account? <Link to="/signin">Sign In</Link>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign Up
+              </Button>
+              <Grid container justifyContent="center">
+                <Grid item>
+                  Already have an account? <Link to="/signin">Sign In</Link>
+                </Grid>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
+        <Box mt={5}>
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'Copyright © '}
+            <Link color="inherit" href="https://inclusiplan.com">
+              InclusiPlan
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+          </Typography>
+        </Box>
       </Container>
     </ThemeProvider>
   );
 }
+
+
+
+
+

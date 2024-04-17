@@ -1,14 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { AppBar, IconButton, Toolbar, Collapse, Box, Typography, Drawer, List, ListItem, ListItemText, Button, Menu, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  AppBar,
+  IconButton,
+  Toolbar,
+  Collapse,
+  Box,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Menu,
+  MenuItem
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Link as Scroll } from 'react-scroll';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [checked, setChecked] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setChecked(true);
@@ -20,6 +35,11 @@ export default function Header() {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogin = (role) => {
+    navigate('/signin', { state: { role } }); // Assuming '/signin' is your login path
+    handleClose();
   };
 
   const toggleDrawer = (open) => (event) => {
@@ -37,8 +57,8 @@ export default function Header() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {['Home', 'About', 'Services', 'Contact', 'Sign Up'].map((text) => (
-          <ListItem button key={text}>
+        {['About', 'Services', 'Contact', 'Sign Up'].map((text) => (
+          <ListItem button key={text} component={RouterLink} to={'/' + text.toLowerCase().replace(/\s+/g, '')}>
             <ListItemText primary={text} />
           </ListItem>
         ))}
@@ -89,8 +109,8 @@ export default function Header() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Teacher Login</MenuItem>
-              <MenuItem onClick={handleClose}>Parent Login</MenuItem>
+              <MenuItem onClick={() => handleLogin('teacher')}>Teacher Login</MenuItem>
+              <MenuItem onClick={() => handleLogin('parent')}>Parent Login</MenuItem>
             </Menu>
             <IconButton sx={{ color: 'white' }} onClick={toggleDrawer(true)}>
               <MenuIcon fontSize="large" />
@@ -109,16 +129,13 @@ export default function Header() {
             Welcome to <br />
             <span sx={{ color: '#5AFF3D' }}>InclusiPlan</span>
           </Typography>
-          <Scroll to="roles-to-visit" smooth={true}>
-            <IconButton sx={{ color: '#0077b6', fontSize: '4rem' }}>
-              <ExpandMoreIcon fontSize="inherit" />
-            </IconButton>
-          </Scroll>
         </Box>
       </Collapse>
     </Box>
   );
 }
+
+
 
 
 

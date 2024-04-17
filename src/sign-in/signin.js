@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
+import { auth } from '../firebase/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -27,15 +27,23 @@ export default function SignInSide() {
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
-
+  
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log("You're logged in!");
-      navigate('/dashboard'); // Update with your path
+      navigate('/dashboard'); // Navigate to dashboard upon successful login
     } catch (error) {
-      console.error("Error signing in with email and password:", error.message);
+      console.error("Error signing in:", error);
+      if (error.code === 'auth/wrong-password') {
+        alert('Incorrect password. Please try again.');
+      } else if (error.code === 'auth/user-not-found') {
+        alert('No user found with this email address.');
+      } else {
+        alert('Error signing in. Please try again.');
+      }
     }
   };
+  
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
